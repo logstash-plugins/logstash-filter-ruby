@@ -5,7 +5,7 @@ require "logstash/namespace"
 # Execute ruby code.
 #
 # For example, to cancel 90% of events, you can do this:
-#
+# [source,ruby]
 #     filter {
 #       ruby {
 #         # Cancel 90% of events
@@ -21,7 +21,7 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
   config :init, :validate => :string
 
   # The code to execute for every event.
-  # You will have an 'event' variable available that is the event itself.
+  # You will have an `event` variable available that is the event itself.
   config :code, :validate => :string, :required => true
 
   public
