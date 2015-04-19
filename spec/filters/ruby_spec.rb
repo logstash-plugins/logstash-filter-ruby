@@ -52,4 +52,29 @@ describe LogStash::Filters::Ruby do
       insist { subject["pretty"] } == "{\"message\":\"hello world\",\"mydate\":\"2014-09-23T00:00:00-0800\",\"@version\":\"1\",\"@timestamp\":\"2014-09-23T08:00:00.000Z\"}"
     end
   end
+
+  describe "catch all exceptions and don't let them ruin your day buy stopping the entire worker" do
+    # If exception is raised, it stops entine processing pipeline, and never resumes
+    # Code section should always be wrapped with begin/rescue
+    config <<-CONFIG
+      filter {
+        date {
+          match => [ "mydate", "ISO8601" ]
+          locale => "en"
+          timezone => "UTC"
+        }
+        ruby {
+          init => "require 'json'"
+          code => "raise 'You shall not pass'"
+        }
+      }
+    CONFIG
+
+    sample("message" => "hello world", "mydate" => "2014-09-23T00:00:00-0800") do
+      insist { subject["mydate"] } == "2014-09-23T00:00:00-0800"
+      insist { subject["tags"] } == ["_rubyexception"]
+    end
+  end
+
 end
+

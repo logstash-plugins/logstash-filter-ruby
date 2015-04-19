@@ -34,7 +34,12 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
   def filter(event)
     return unless filter?(event)
 
-    @codeblock.call(event)
+    begin
+      @codeblock.call(event)
+    rescue Exception => e
+      @logger.error("Ruby exception occurred: #{e}")
+      event.tag("_rubyexception")
+    end
 
     filter_matched(event)
   end # def filter
