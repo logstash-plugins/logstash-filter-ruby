@@ -66,6 +66,7 @@ describe LogStash::Filters::Ruby do
         ruby {
           init => "require 'json'"
           code => "raise 'You shall not pass'"
+          add_tag => ["ok"]
         }
       }
     CONFIG
