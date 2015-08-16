@@ -13,6 +13,15 @@ require "logstash/namespace"
 #       }
 #     }
 #
+# If you need to create additional events, it cannot be done as in other filters where you would use `yield`,
+# you must use a specific syntax `new_event_block.call(event)` like in this example duplicating the input event
+# [source,ruby]
+# filter {
+#   ruby {
+#     code => "new_event_block.call(event.clone)"
+#   }
+# }
+#
 class LogStash::Filters::Ruby < LogStash::Filters::Base
   config_name "ruby"
 
@@ -26,12 +35,12 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
   def register
     # TODO(sissel): Compile the ruby code
     eval(@init, binding, "(ruby filter init)") if @init
-    eval("@codeblock = lambda { |event| #{@code} }", binding, "(ruby filter code)")
-  end
+    eval("@codeblock = lambda { |event, &new_event_block| #{@code} }", binding, "(ruby filter code)")
+  end # def register
 
-  def filter(event)
+  def filter(event,&block)
     begin
-      @codeblock.call(event)
+      @codeblock.call(event,&block)
       filter_matched(event)
     rescue Exception => e
       @logger.error("Ruby exception occurred: #{e}")
