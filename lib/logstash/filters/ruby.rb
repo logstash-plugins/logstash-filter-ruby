@@ -32,7 +32,7 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
 
   public
   def filter(event)
-    return unless filter?(event)
+    
 
     begin
       @codeblock.call(event)
