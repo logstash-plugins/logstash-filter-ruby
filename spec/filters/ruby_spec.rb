@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require "logstash/devutils/rspec/spec_helper"
 require "logstash/filters/ruby"
 require "logstash/filters/date"
@@ -25,7 +27,10 @@ describe LogStash::Filters::Ruby do
 
     sample("message" => "hello world", "mydate" => "2014-09-23T00:00:00-0800") do
       # json is rendered in pretty json since the JSON.pretty_generate created json from the event hash
-      insist { subject["pretty"] } == "{\n  \"message\": \"hello world\",\n  \"mydate\": \"2014-09-23T00:00:00-0800\",\n  \"@version\": \"1\",\n  \"@timestamp\": \"2014-09-23T08:00:00.000Z\"\n}"
+      # pretty json contains \n
+      insist { subject["pretty"].count("\n") } == 5
+      # usage of JSON.parse here is to avoid parser-specific order assertions
+      insist { JSON.parse(subject["pretty"]) } == JSON.parse("{\n  \"message\": \"hello world\",\n  \"mydate\": \"2014-09-23T00:00:00-0800\",\n  \"@version\": \"1\",\n  \"@timestamp\": \"2014-09-23T08:00:00.000Z\"\n}")
     end
   end
 
@@ -49,7 +54,10 @@ describe LogStash::Filters::Ruby do
 
     sample("message" => "hello world", "mydate" => "2014-09-23T00:00:00-0800") do
       # if this eventually breaks because we removed the custom to_json and/or added pretty support to JrJackson then all is good :)
-      insist { subject["pretty"] } == "{\"message\":\"hello world\",\"mydate\":\"2014-09-23T00:00:00-0800\",\"@version\":\"1\",\"@timestamp\":\"2014-09-23T08:00:00.000Z\"}"
+      # non-pretty json does not contain \n
+      insist { subject["pretty"].count("\n") } == 0
+      # usage of JSON.parse here is to avoid parser-specific order assertions
+      insist { JSON.parse(subject["pretty"]) } == JSON.parse("{\"message\":\"hello world\",\"mydate\":\"2014-09-23T00:00:00-0800\",\"@version\":\"1\",\"@timestamp\":\"2014-09-23T08:00:00.000Z\"}")
     end
   end
 
