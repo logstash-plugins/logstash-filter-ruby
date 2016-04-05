@@ -6,6 +6,48 @@ require "logstash/filters/date"
 
 describe LogStash::Filters::Ruby do
 
+  describe "modifying deeply nested values with ruby syntax" do
+    config <<-CONFIG
+      filter {
+        ruby {
+          code => "event['parent']['child'] = 'foobar'"
+        }
+      }
+    CONFIG
+
+    sample("parent" => {"child" => "foo"}) do
+      insist { subject["parent"]["child"] } == "foobar"
+    end
+  end
+
+  describe "modifying deeply nested values with logstash" do
+    config <<-CONFIG
+      filter {
+        ruby {
+          code => "event['[parent][child]'] = 'foobar'"
+        }
+      }
+    CONFIG
+
+    sample("parent" => {"child" => "foo"}) do
+      insist { subject["parent"]["child"] } == "foobar"
+    end
+  end
+
+  describe "in place modifications" do
+    config <<-CONFIG
+      filter {
+        ruby {
+          code => "event['myval'].downcase!"
+        }
+      }
+    CONFIG
+
+    sample("myval" => "FOO") do
+      insist { subject["myval"] } == "foo"
+    end
+  end
+
   describe "generate pretty json on event.to_hash" do
     # this obviously tests the Ruby filter but also makes sure
     # the fix for issue #1771 is correct and that to_json is

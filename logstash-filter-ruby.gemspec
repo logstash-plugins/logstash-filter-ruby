@@ -21,6 +21,7 @@ Gem::Specification.new do |s|
 
   # Gem dependencies
   s.add_runtime_dependency "logstash-core-plugin-api", "~> 1.0"
+  s.add_runtime_dependency "logstash-core", ">= 2.3.0"
   s.add_runtime_dependency 'logstash-filter-date'
   s.add_development_dependency 'logstash-devutils'
 end
