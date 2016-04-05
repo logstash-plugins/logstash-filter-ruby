@@ -2,9 +2,15 @@ class LogstashEventProxy
   def initialize(event)
     @event = event
     @cached_fields = {}
+    @cache_needs_flush = false
   end
 
   def [](name)
+    if name.include?("[")
+      flush_cached_fields!
+      @cache_needs_flush = true
+    end
+
     if (cached = @cached_fields[name])
       cached
     else
@@ -15,7 +21,12 @@ class LogstashEventProxy
   end
 
   def []=(name,val)
+    flush_cached_fields! if @cache_needs_flush
+    @cache_needs_flush = true if name.include?("[")
+
     @cached_fields[name] = val
+    flush_cached_fields! if @cache_needs_flush
+    val
   end
 
   # Flush all cached to orig event
@@ -23,6 +34,8 @@ class LogstashEventProxy
     @cached_fields.each do |k,v|
       @event[k] = v
     end
+    @cache_needs_flush = false
+    @cached_fields.clear
   end
 
   def proxied_event

@@ -20,6 +20,34 @@ describe LogStash::Filters::Ruby do
     end
   end
 
+  describe "accessing the field with alternating syntax and mutation" do
+    config <<-CONFIG
+      filter {
+        ruby {
+          code => "event['parent']['child'] << 'bar'; event['[parent][child]'] << 'baz'"
+        }
+      }
+    CONFIG
+
+    sample("parent" => {"child" => "foo"}) do
+      insist { subject["parent"]["child"] } == "foobarbaz"
+    end
+  end
+
+  describe "accessing the field with alternating syntax and assignment" do
+    config <<-CONFIG
+      filter {
+        ruby {
+          code => "event['parent']['child'] += 'bar'; event['[parent][child]'] += 'baz'"
+        }
+      }
+    CONFIG
+
+    sample("parent" => {"child" => "foo"}) do
+      insist { subject["parent"]["child"] } == "foobarbaz"
+    end
+  end
+
   describe "modifying deeply nested values with logstash" do
     config <<-CONFIG
       filter {
@@ -52,7 +80,7 @@ describe LogStash::Filters::Ruby do
     # this obviously tests the Ruby filter but also makes sure
     # the fix for issue #1771 is correct and that to_json is
     # compatible with the json gem convention.
-
+    #
     config <<-CONFIG
       filter {
         date {
@@ -66,7 +94,7 @@ describe LogStash::Filters::Ruby do
         }
       }
     CONFIG
-
+    #
     sample("message" => "hello world", "mydate" => "2014-09-23T00:00:00-0800") do
       # json is rendered in pretty json since the JSON.pretty_generate created json from the event hash
       # pretty json contains \n
@@ -75,7 +103,7 @@ describe LogStash::Filters::Ruby do
       insist { JSON.parse(subject["pretty"]) } == JSON.parse("{\n  \"message\": \"hello world\",\n  \"mydate\": \"2014-09-23T00:00:00-0800\",\n  \"@version\": \"1\",\n  \"@timestamp\": \"2014-09-23T08:00:00.000Z\"\n}")
     end
   end
-
+    #
   describe "generate pretty json on event.to_hash" do
     # this obviously tests the Ruby filter but asses that using the json gem directly
     # on even will correctly call the to_json method but will use the logstash json
@@ -126,6 +154,5 @@ describe LogStash::Filters::Ruby do
       insist { subject["tags"] } == ["_rubyexception"]
     end
   end
-
 end
 
