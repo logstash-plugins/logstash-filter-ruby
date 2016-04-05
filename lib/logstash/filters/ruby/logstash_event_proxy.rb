@@ -6,6 +6,7 @@ class LogstashEventProxy
   end
 
   def [](name)
+    flush_cached_fields! if @cache_needs_flush
     if name.include?("[")
       flush_cached_fields!
       @cache_needs_flush = true
