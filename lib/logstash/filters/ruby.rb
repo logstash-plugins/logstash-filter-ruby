@@ -1,6 +1,7 @@
 # encoding: utf-8
 require "logstash/filters/base"
 require "logstash/namespace"
+require "logstash/filters/ruby/logstash_event_proxy"
 
 # Execute ruby code.
 #
@@ -31,10 +32,12 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
 
   def filter(event)
     begin
-      @codeblock.call(event)
+      proxied_event = LogstashEventProxy.new(event)
+      @codeblock.call(proxied_event)
+      proxied_event.flush_cached_fields!
       filter_matched(event)
     rescue Exception => e
-      @logger.error("Ruby exception occurred: #{e}")
+      @logger.error("Ruby exception occurred: #{e}", :backtrace => e.backtrace)
       event.tag("_rubyexception")
     end
   end
