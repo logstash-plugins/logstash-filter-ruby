@@ -106,15 +106,15 @@ describe LogStash::Filters::Ruby do
       filter {
         ruby {
           code => "new_event_block.call(event.clone);
-                   event['message'] = 'cancelled'; event.cancel;"
+                   event.cancel;"
           add_tag => ["ok"]
         }
       }
     CONFIG
 
     sample("message" => "hello world", "mydate" => "2014-09-23T00:00:00-0800") do
-      expect(subject["message"]).to eq("hello world");
-      expect(subject["mydate"]).to eq("2014-09-23T00:00:00-0800");
+      expect(subject.get("message")).to eq("hello world");
+      expect(subject.get("mydate")).to eq("2014-09-23T00:00:00-0800");
     end
   end
 end
