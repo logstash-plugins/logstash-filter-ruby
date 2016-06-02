@@ -85,5 +85,37 @@ describe LogStash::Filters::Ruby do
     end
   end
 
+  describe "allow to create new event inside the ruby filter" do
+    config <<-CONFIG
+      filter {
+        ruby {
+          code => "new_event_block.call(event.clone)"
+        }
+      }
+    CONFIG
+
+    sample("message" => "hello world", "mydate" => "2014-09-23T00:00:00-0800") do
+      expect(subject).to be_a Array
+      expect(subject[0]).not_to eq(subject[1])
+      expect(subject[0].to_hash).to eq(subject[1].to_hash)
+    end
+  end
+
+  describe "allow to replace event by another one" do
+    config <<-CONFIG
+      filter {
+        ruby {
+          code => "new_event_block.call(event.clone);
+                   event.cancel;"
+          add_tag => ["ok"]
+        }
+      }
+    CONFIG
+
+    sample("message" => "hello world", "mydate" => "2014-09-23T00:00:00-0800") do
+      expect(subject.get("message")).to eq("hello world");
+      expect(subject.get("mydate")).to eq("2014-09-23T00:00:00-0800");
+    end
+  end
 end
 
