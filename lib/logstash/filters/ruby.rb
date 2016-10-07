@@ -43,6 +43,7 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
       @codeblock.call(event,&block)
       filter_matched(event)
     rescue Exception => e
+      err_details = {}
       err_details["exception"] = e
       err_details["event"] = event
       err_details["code"] = @code
