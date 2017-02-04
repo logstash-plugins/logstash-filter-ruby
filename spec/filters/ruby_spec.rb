@@ -117,5 +117,18 @@ describe LogStash::Filters::Ruby do
       expect(subject.get("mydate")).to eq("2014-09-23T00:00:00-0800");
     end
   end
-end
 
+  describe "allow to read code from file" do
+    config <<-CONFIG
+      filter {
+        ruby {
+          code_filepath => "spec/filters/code_file/test_codefile.rb"
+        }
+      }
+    CONFIG
+
+    sample("message" => "hello world", "mydate" => "2014-09-23T00:00:00-0800") do
+      expect(subject.get("message")).to eq("Hello, :code_filepath")
+    end
+  end
+end
