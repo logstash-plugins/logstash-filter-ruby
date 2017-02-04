@@ -30,9 +30,27 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
 
   # The code to execute for every event.
   # You will have an `event` variable available that is the event itself.
-  config :code, :validate => :string, :required => true
+  # You can use only `code` or `code_filepath`. If you set both, this plugin raise ConfigurationError.
+  config :code, :validate => :string, :required => false
+
+  # The file to execute code.
+  # You can use this file instead of `code` statement.
+  # You can use only `code` or `code_filepath`. If you set both, this plugin raise ConfigurationError.
+  config :code_filepath, :validate => :string, :required => false
 
   def register
+    unless @code.nil? ^ @code_filepath.nil?
+      raise(LogStash::ConfigurationError, "Must set either :code or :code_filepath. Only one may be set at a time.")
+    end
+
+    if @code_filepath
+      unless File.exists?(@code_filepath)
+        raise(LogStash::ConfigurationError, ":code_filepath(#{@code_filepath} is not found.)")
+      end
+
+      @code = File.read(@code_filepath) if @code_filepath
+    end
+
     # TODO(sissel): Compile the ruby code
     eval(@init, binding, "(ruby filter init)") if @init
     eval("@codeblock = lambda { |event, &new_event_block| #{@code} }", binding, "(ruby filter code)")
