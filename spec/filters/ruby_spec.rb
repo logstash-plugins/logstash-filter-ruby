@@ -124,13 +124,13 @@ describe LogStash::Filters::Ruby do
     config <<-CONFIG
       filter {
         ruby {
-          code => "raise 'Chuck Norris says you can't pass."
+          code => "raise 'Chuck Norris says you cannot pass.'"
           tag_on_failure => ["_chuck_norris_exception"]
         }
       }
     CONFIG
 
-    sample("message" => "Chuck Norris doesn't worry about high gas prices. His vehicles run on fear.") do
+    sample("message" => "Chuck Norris does not worry about high gas prices. His vehicles run on fear.") do
       insist { subject.get("tags") } == ["_chuck_norris_exception"]
     end
   end
