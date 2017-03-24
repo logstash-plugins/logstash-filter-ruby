@@ -29,7 +29,7 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
   config :init, :validate => :string
 
   # The code to execute for every event.
-  # You will have an `event` variable available that is the event itself.
+  # You will have an `event` variable available that is the event itself. See the <<event-api,Event API>> for more information.
   config :code, :validate => :string, :required => true
 
   def register
