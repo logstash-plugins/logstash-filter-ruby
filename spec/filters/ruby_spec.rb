@@ -117,5 +117,22 @@ describe LogStash::Filters::Ruby do
       expect(subject.get("mydate")).to eq("2014-09-23T00:00:00-0800");
     end
   end
+
+  describe "allow custom tagging of failed code execution" do
+    # If exception is raised, it stops entine processing pipeline, and never resumes
+    # Code section should always be wrapped with begin/rescue
+    config <<-CONFIG
+      filter {
+        ruby {
+          code => "raise 'Chuck Norris says you can't pass."
+          tag_on_failure => ["_chuck_norris_exception"]
+        }
+      }
+    CONFIG
+
+    sample("message" => "Chuck Norris doesn't worry about high gas prices. His vehicles run on fear.") do
+      insist { subject.get("tags") } == ["_chuck_norris_exception"]
+    end
+  end
 end
 
