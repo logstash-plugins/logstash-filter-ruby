@@ -28,9 +28,9 @@ describe LogStash::Filters::Ruby do
     sample("message" => "hello world", "mydate" => "2014-09-23T00:00:00-0800") do
       # json is rendered in pretty json since the JSON.pretty_generate created json from the event hash
       # pretty json contains \n
-      insist { subject.get("pretty").count("\n") } == 5
+      insist { subject.get("pretty").count("\n") } == 8
       # usage of JSON.parse here is to avoid parser-specific order assertions
-      insist { JSON.parse(subject.get("pretty")) } == JSON.parse("{\n  \"message\": \"hello world\",\n  \"mydate\": \"2014-09-23T00:00:00-0800\",\n  \"@version\": \"1\",\n  \"@timestamp\": \"2014-09-23T08:00:00.000Z\"\n}")
+      insist { JSON.parse(subject.get("pretty")) } == JSON.parse("{\n  \"message\": \"hello world\",\n  \"mydate\": \"2014-09-23T00:00:00-0800\",\n  \"@version\": \"1\",\n  \"@timestamp\": \"2014-09-23T08:00:00.000Z\",\n \"tags\":[]}")
     end
   end
 
@@ -57,7 +57,7 @@ describe LogStash::Filters::Ruby do
       # non-pretty json does not contain \n
       insist { subject.get("pretty").count("\n") } == 0
       # usage of JSON.parse here is to avoid parser-specific order assertions
-      insist { JSON.parse(subject.get("pretty")) } == JSON.parse("{\"message\":\"hello world\",\"mydate\":\"2014-09-23T00:00:00-0800\",\"@version\":\"1\",\"@timestamp\":\"2014-09-23T08:00:00.000Z\"}")
+      insist { JSON.parse(subject.get("pretty")) } == JSON.parse("{\"message\":\"hello world\",\"mydate\":\"2014-09-23T00:00:00-0800\",\"@version\":\"1\",\"@timestamp\":\"2014-09-23T08:00:00.000Z\", \"tags\":[]}")
     end
   end
 
@@ -97,7 +97,9 @@ describe LogStash::Filters::Ruby do
     sample("message" => "hello world", "mydate" => "2014-09-23T00:00:00-0800") do
       expect(subject).to be_a Array
       expect(subject[0]).not_to eq(subject[1])
-      expect(subject[0].to_hash).to eq(subject[1].to_hash)
+      expect(subject[0].to_hash).not_to eq(subject[1].to_hash) # subject[1] are appended tags at clone event.
+      expect(subject[0].to_hash['message']).to eq(subject[1].to_hash['message'])
+      expect(subject[0].to_hash['mydate']).to eq(subject[1].to_hash['mydate'])
     end
   end
 
@@ -118,4 +120,3 @@ describe LogStash::Filters::Ruby do
     end
   end
 end
-
