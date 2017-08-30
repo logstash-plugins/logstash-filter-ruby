@@ -32,6 +32,9 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
   # You will have an `event` variable available that is the event itself. See the <<event-api,Event API>> for more information.
   config :code, :validate => :string, :required => true
 
+  # Allow for custom tag on failure 
+  config :tag_on_failure, :validate => :array, :default => ["_rubyexception"]
+
   def register
     # TODO(sissel): Compile the ruby code
     eval(@init, binding, "(ruby filter init)") if @init
@@ -44,7 +47,7 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
       filter_matched(event)
     rescue Exception => e
       @logger.error("Ruby exception occurred: #{e}")
-      event.tag("_rubyexception")
+      @tag_on_failure.each{|tag| event.tag(tag)}
     end
   end
 end
