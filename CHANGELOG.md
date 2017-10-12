@@ -1,3 +1,6 @@
+## 3.1.0
+  - Add file base ruby script support
+
 ## 3.0.4
   - Fix some documentation issues
 
