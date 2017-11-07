@@ -1,3 +1,6 @@
+## 3.1.1
+  - Update gemspec summary
+
 ## 3.1.0
   - Add file base ruby script support
 
