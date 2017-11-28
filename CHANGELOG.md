@@ -1,3 +1,6 @@
+## 3.1.2
+  - Fix concurrency issues in combination with Logstash 6.x and multiple worker threads that was caused by a [JRuby issue](https://github.com/jruby/jruby/issues/4868)
+
 ## 3.1.1
   - Update gemspec summary
 
