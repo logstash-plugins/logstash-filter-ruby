@@ -56,7 +56,7 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
   def register
     if @code && @path.nil?
       eval(@init, binding, "(ruby filter init)") if @init
-      eval("@codeblock = lambda { |event, &new_event_block| #{@code} }", binding, "(ruby filter code)")
+      eval("define_singleton_method :filter_method do |event, &new_event_block|\n #{@code} \nend", binding, "(ruby filter code)")
     elsif @path && @code.nil?
       @script.register
     else
@@ -86,7 +86,7 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
   end
 
   def inline_script(event, &block)
-    @codeblock.call(event, &block)
+    filter_method(event, &block)
     filter_matched(event)
   rescue Exception => e
     @logger.error("Ruby exception occurred: #{e}")
