@@ -156,5 +156,13 @@ describe LogStash::Filters::Ruby do
         end.to raise_error(LogStash::Filters::Ruby::ScriptError)
       end
     end
+
+    describe "scripts with failing test suites" do
+      let(:script_filename) { 'multi_events.rb' }
+
+      it "should produce more multiple events" do
+        expect {|b| filter.filter(incoming_event, &b) }.to yield_control.exactly(3).times
+      end
+    end
   end
 end

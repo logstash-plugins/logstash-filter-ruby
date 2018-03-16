@@ -81,7 +81,7 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
     if @code
       inline_script(event, &block)
     elsif @path
-      file_script(event)
+      file_script(event, &block)
     end
   end
 
