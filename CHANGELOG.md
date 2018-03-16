@@ -1,3 +1,6 @@
+## 3.1.4
+  - fix return of multiple events when using file based scripts #41
+
 ## 3.1.3
   - Fix documentation issues
 
