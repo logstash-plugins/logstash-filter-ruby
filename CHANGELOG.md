@@ -1,3 +1,6 @@
+## 3.1.5
+  - Fixed path based scripting not calling filter\_matched [#45](https://github.com/logstash-plugins/logstash-filter-ruby/issues/45)
+
 ## 3.1.4
   - fix return of multiple events when using file based scripts #41
 

@@ -96,6 +96,7 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
   def file_script(event)
     begin
       results = @script.execute(event)
+      filter_matched(event)
 
       self.class.check_result_events!(results)
     rescue => e

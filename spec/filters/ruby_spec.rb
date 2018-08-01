@@ -136,6 +136,7 @@ describe LogStash::Filters::Ruby do
       end
 
       describe "filtering" do
+        let(:filter_params) { super.merge('add_field' => {'success' => 'yes' }) }
         before(:each) do
           filter.register
           filter.filter(incoming_event)
@@ -143,6 +144,10 @@ describe LogStash::Filters::Ruby do
 
         it "should filter data as expected" do
           expect(incoming_event.get('foo')).to eq(84)
+        end
+
+        it "should apply filter_matched" do
+          expect(incoming_event.get('success')).to eq('yes')
         end
       end
     end
