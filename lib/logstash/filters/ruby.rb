@@ -45,7 +45,7 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
   config :tag_on_exception, :type => :string, :default => "_rubyexception"
 
   # Flag for add exception message to tag_on_exception
-  config :enable_exception_message, :type => :boolean, :default => true
+  config :enable_exception_message, :type => :boolean, :default => false
 
   def initialize(*params)
     super(*params)
