@@ -44,6 +44,9 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
   # Tag to add to events that cause an exception in the script filter
   config :tag_on_exception, :type => :string, :default => "_rubyexception"
 
+  # Tlag for add exception message to tag_on_exception
+  config :enable_exception_message, :type => :boolean, :default => true
+
   def initialize(*params)
     super(*params)
     if @path # run tests on the ruby file script
@@ -90,17 +93,24 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
     filter_matched(event)
   rescue Exception => e
     @logger.error("Ruby exception occurred: #{e}")
-    event.tag(@tag_on_exception)
+    if @enable_exception_message
+      event.tag(@tag_on_exception + ": " + e.to_s)
+    else
+      event.tag(@tag_on_exception)
+    end
   end
 
   def file_script(event)
     begin
       results = @script.execute(event)
-      filter_matched(event)
 
       self.class.check_result_events!(results)
     rescue => e
-      event.tag(@tag_on_exception)
+      if @enable_exception_message
+        event.tag(@tag_on_exception + ": " + e.to_s)
+      else
+        event.tag(@tag_on_exception)
+      end
       message = "Could not process event: " + e.message
       @logger.error(message, :script_path => @path,
                              :class => e.class.name,
