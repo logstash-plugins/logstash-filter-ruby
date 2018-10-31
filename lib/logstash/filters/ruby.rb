@@ -44,7 +44,7 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
   # Tag to add to events that cause an exception in the script filter
   config :tag_on_exception, :type => :string, :default => "_rubyexception"
 
-  # Tlag for add exception message to tag_on_exception
+  # Flag for add exception message to tag_on_exception
   config :enable_exception_message, :type => :boolean, :default => true
 
   def initialize(*params)
