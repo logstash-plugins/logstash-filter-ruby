@@ -45,7 +45,7 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
   config :tag_on_exception, :type => :string, :default => "_rubyexception"
 
   # Flag for add exception message to tag_on_exception
-  config :enable_exception_message, :type => :boolean, :default => false
+  config :tag_with_exception_message, :type => :boolean, :default => false
 
   def initialize(*params)
     super(*params)
@@ -93,7 +93,7 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
     filter_matched(event)
   rescue Exception => e
     @logger.error("Ruby exception occurred: #{e}")
-    if @enable_exception_message
+    if @tag_with_exception_message
       event.tag("#{@tag_on_exception}: #{e}")
     end
     event.tag(@tag_on_exception)
@@ -106,7 +106,7 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
 
       self.class.check_result_events!(results)
     rescue => e
-      if @enable_exception_message
+      if @tag_with_exception_message
         event.tag("#{@tag_on_exception}: #{e}")
       end
       event.tag(@tag_on_exception)
