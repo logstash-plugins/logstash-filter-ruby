@@ -94,10 +94,9 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
   rescue Exception => e
     @logger.error("Ruby exception occurred: #{e}")
     if @enable_exception_message
-      event.tag(@tag_on_exception + ": " + e.to_s)
-    else
-      event.tag(@tag_on_exception)
+      event.tag("#{@tag_on_exception}: #{e}")
     end
+    event.tag(@tag_on_exception)
   end
 
   def file_script(event)
@@ -108,10 +107,9 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
       self.class.check_result_events!(results)
     rescue => e
       if @enable_exception_message
-        event.tag(@tag_on_exception + ": " + e.to_s)
-      else
-        event.tag(@tag_on_exception)
+        event.tag("#{@tag_on_exception}: #{e}")
       end
+      event.tag(@tag_on_exception)
       message = "Could not process event: " + e.message
       @logger.error(message, :script_path => @path,
                              :class => e.class.name,
