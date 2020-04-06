@@ -23,8 +23,9 @@ require "logstash/namespace"
 # }
 #
 class LogStash::Filters::Ruby < LogStash::Filters::Base
-  require "logstash/filters/ruby/script_error"
   require "logstash/filters/ruby/script"
+
+  class ScriptError < StandardError; end
 
   config_name "ruby"
 
