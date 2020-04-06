@@ -1,3 +1,6 @@
+## 3.2.0
+  - Breaking: restrict unintended user constant usage [#56](https://github.com/logstash-plugins/logstash-filter-ruby/pull/56)
+
 ## 3.1.5
   - Fixed path based scripting not calling filter\_matched [#45](https://github.com/logstash-plugins/logstash-filter-ruby/issues/45)
 
