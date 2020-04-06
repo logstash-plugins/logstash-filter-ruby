@@ -60,7 +60,7 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
   def register
     if @code && @path.nil?
       eval(@init, binding, "(ruby filter init)") if @init
-      eval("define_singleton_method :filter_method do |event, &new_event_block|\n #{@code} \nend", binding, "(ruby filter code)")
+      eval("def self.filter_method(event, &new_event_block); #{@code} \nend", binding, "(ruby filter code)", 0)
     elsif @path && @code.nil?
       @script.register
     else
