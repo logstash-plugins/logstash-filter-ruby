@@ -114,6 +114,26 @@ describe LogStash::Filters::Ruby do
         expect(subject.get("mydate")).to eq("2014-09-23T00:00:00-0800");
       end
     end
+
+    describe "invalid script" do
+      let(:filter_params) { { 'code' => code } }
+      subject(:filter) { ::LogStash::Filters::Ruby.new(filter_params) }
+
+      let(:code) { 'sample do syntax error' }
+
+      it "should error out during register" do
+        expect { filter.register }.to raise_error(SyntaxError)
+      end
+
+      it "reports correct error line" do
+        begin
+          filter.register
+          fail('syntax error expected')
+        rescue SyntaxError => e
+          expect( e.message ).to match /\(ruby filter code\):1.*? unexpected end-of-file/
+        end
+      end
+    end
   end
 
   context "when using file based script" do
@@ -165,6 +185,23 @@ describe LogStash::Filters::Ruby do
 
       it "should produce more multiple events" do
         expect {|b| filter.filter(incoming_event, &b) }.to yield_control.exactly(3).times
+      end
+    end
+
+    describe "invalid .rb script" do
+      let(:script_filename) { 'invalid.rb' }
+
+      it "should error out during register" do
+        expect { filter.register }.to raise_error(SyntaxError)
+      end
+
+      it "should report correct line number" do
+        begin
+          filter.register
+          fail('syntax error expected')
+        rescue SyntaxError => e
+          expect( e.message ).to match /invalid\.rb\:7/
+        end
       end
     end
   end
