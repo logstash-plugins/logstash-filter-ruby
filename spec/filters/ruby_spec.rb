@@ -115,6 +115,23 @@ describe LogStash::Filters::Ruby do
       end
     end
 
+    describe "code raising" do
+      subject(:filter) { ::LogStash::Filters::Ruby.new('code' => 'raise "an_error"') }
+      before(:each) { filter.register }
+
+      it "should handle (standard) error" do
+        expect( filter.logger ).to receive(:error).
+            with('Ruby exception occurred:', hash_including(:message => 'an_error', :exception => RuntimeError)).
+            and_call_original
+
+        event = LogStash::Event.new "message" => "hello world"
+        new_events = filter.multi_filter([event])
+        expect(new_events.length).to eq 1
+        expect(new_events[0]).to equal(event)
+        expect( event.get('tags') ).to eql [ '_rubyexception' ]
+      end
+    end
+
     describe "invalid script" do
       let(:filter_params) { { 'code' => code } }
       subject(:filter) { ::LogStash::Filters::Ruby.new(filter_params) }
@@ -185,6 +202,23 @@ describe LogStash::Filters::Ruby do
 
       it "should produce more multiple events" do
         expect {|b| filter.filter(incoming_event, &b) }.to yield_control.exactly(3).times
+      end
+    end
+
+    describe "script that raises" do
+      let(:script_filename) { 'raising.rb' }
+
+      before(:each) do
+        filter.register
+        incoming_event.set('error', 'ERR-MSG')
+      end
+
+      it "should handle (standard) error" do
+        expect( filter.logger ).to receive(:error).
+            with('Could not process event:', hash_including(:message => 'ERR-MSG', :exception => NameError)).
+            and_call_original
+        filter.filter(incoming_event)
+        expect( incoming_event.get('tags') ).to eql [ '_rubyexception' ]
       end
     end
 
