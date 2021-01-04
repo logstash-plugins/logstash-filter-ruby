@@ -1,6 +1,6 @@
 # Logstash Plugin
 
-[![Travis Build Status](https://travis-ci.org/logstash-plugins/logstash-filter-ruby.svg)](https://travis-ci.org/logstash-plugins/logstash-filter-ruby)
+[![Travis Build Status](https://travis-ci.com/logstash-plugins/logstash-filter-ruby.svg)](https://travis-ci.com/logstash-plugins/logstash-filter-ruby)
 
 This is a plugin for [Logstash](https://github.com/elastic/logstash).
 
