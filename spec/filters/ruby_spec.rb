@@ -134,7 +134,7 @@ describe LogStash::Filters::Ruby do
       end
 
       describe "filtering" do
-        let(:filter_params) { super.merge('add_field' => {'success' => 'yes' }) }
+        let(:filter_params) { super().merge('add_field' => {'success' => 'yes' }) }
         before(:each) do
           filter.register
           filter.filter(incoming_event)
