@@ -1,5 +1,5 @@
 ## 3.1.6
-  - Add error log backtrace [#54](https://github.com/logstash-plugins/logstash-filter-ruby/pull/54)
+  - Add error log backtrace to inline scripts [#54](https://github.com/logstash-plugins/logstash-filter-ruby/pull/54)
 
 ## 3.1.5
   - Fixed path based scripting not calling filter\_matched [#45](https://github.com/logstash-plugins/logstash-filter-ruby/issues/45)
@@ -44,4 +44,3 @@
  - internal: Plugins were updated to follow the new shutdown semantic, this mainly allows Logstash to instruct input plugins to terminate gracefully,
    instead of using Thread.raise on the plugins' threads. Ref: https://github.com/elastic/logstash/pull/3895
  - internal,deps: Dependency on logstash-core update to 2.0
-
