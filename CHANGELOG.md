@@ -1,3 +1,6 @@
+## 3.1.6
+  - Add error log backtrace [#54](https://github.com/logstash-plugins/logstash-filter-ruby/pull/54)
+
 ## 3.1.5
   - Fixed path based scripting not calling filter\_matched [#45](https://github.com/logstash-plugins/logstash-filter-ruby/issues/45)
 
