@@ -1,3 +1,6 @@
+## 3.1.7
+  - [DOC] Added docs to help people avoid concurrency issues (often caused by accidentally relying on shared state with global variables, constants, or unguarded overwriting of instance variables) [#58](https://github.com/logstash-plugins/logstash-filter-ruby/issues/58)
+
 ## 3.1.6
   - Add error log backtrace to inline scripts [#54](https://github.com/logstash-plugins/logstash-filter-ruby/pull/54)
 
