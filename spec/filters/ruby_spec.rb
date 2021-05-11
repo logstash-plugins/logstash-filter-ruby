@@ -27,9 +27,9 @@ describe LogStash::Filters::Ruby do
       sample("message" => "hello world", "mydate" => "2014-09-23T00:00:00-0800") do
         # json is rendered in pretty json since the JSON.pretty_generate created json from the event hash
         # pretty json contains \n
-        insist { subject.get("pretty").count("\n") } == 5
+        expect( subject.get("pretty").count("\n") ).to eql 5
         # usage of JSON.parse here is to avoid parser-specific order assertions
-        insist { JSON.parse(subject.get("pretty")) } == JSON.parse("{\n  \"message\": \"hello world\",\n  \"mydate\": \"2014-09-23T00:00:00-0800\",\n  \"@version\": \"1\",\n  \"@timestamp\": \"2014-09-23T08:00:00.000Z\"\n}")
+        expect( JSON.parse(subject.get("pretty")) ).to eql JSON.parse("{\n  \"message\": \"hello world\",\n  \"mydate\": \"2014-09-23T00:00:00-0800\",\n  \"@version\": \"1\",\n  \"@timestamp\": \"2014-09-23T08:00:00.000Z\"\n}")
       end
     end
 
@@ -54,9 +54,9 @@ describe LogStash::Filters::Ruby do
       sample("message" => "hello world", "mydate" => "2014-09-23T00:00:00-0800") do
         # if this eventually breaks because we removed the custom to_json and/or added pretty support to JrJackson then all is good :)
         # non-pretty json does not contain \n
-        insist { subject.get("pretty").count("\n") } == 0
+        expect( subject.get("pretty").count("\n") ).to eql 0
         # usage of JSON.parse here is to avoid parser-specific order assertions
-        insist { JSON.parse(subject.get("pretty")) } == JSON.parse("{\"message\":\"hello world\",\"mydate\":\"2014-09-23T00:00:00-0800\",\"@version\":\"1\",\"@timestamp\":\"2014-09-23T08:00:00.000Z\"}")
+        expect( JSON.parse(subject.get("pretty")) ).to eql JSON.parse("{\"message\":\"hello world\",\"mydate\":\"2014-09-23T00:00:00-0800\",\"@version\":\"1\",\"@timestamp\":\"2014-09-23T08:00:00.000Z\"}")
       end
     end
 
@@ -79,8 +79,8 @@ describe LogStash::Filters::Ruby do
       CONFIG
 
       sample("message" => "hello world", "mydate" => "2014-09-23T00:00:00-0800") do
-        insist { subject.get("mydate") } == "2014-09-23T00:00:00-0800"
-        insist { subject.get("tags") } == ["_rubyexception"]
+        expect( subject.get("mydate") ).to eql "2014-09-23T00:00:00-0800"
+        expect( subject.get("tags") ).to eql ["_rubyexception"]
       end
     end
 
