@@ -121,7 +121,7 @@ describe LogStash::Filters::Ruby do
 
       it "should handle (standard) error" do
         expect( filter.logger ).to receive(:error).
-            with('Ruby exception occurred:', hash_including(:message => 'an_error', :exception => RuntimeError)).
+            with('Ruby exception occurred: an_error', hash_including(:exception => RuntimeError)).
             and_call_original
 
         event = LogStash::Event.new "message" => "hello world"
