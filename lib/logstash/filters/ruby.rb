@@ -93,7 +93,7 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
     filter_method(event, &block)
     filter_matched(event)
   rescue Exception => e
-    @logger.error("Ruby exception occurred:", :message => e.message, :exception => e.class, :backtrace => e.backtrace)
+    @logger.error("Ruby exception occurred: #{e.message}", :exception => e.class, :backtrace => e.backtrace)
     tag_exception(event, e)
   end
 

@@ -1,6 +1,12 @@
 ## 3.2.0
   - Breaking: restrict unintended user constant usage [#56](https://github.com/logstash-plugins/logstash-filter-ruby/pull/56)
 
+## 3.1.7
+  - [DOC] Added docs to help people avoid concurrency issues (often caused by accidentally relying on shared state with global variables, constants, or unguarded overwriting of instance variables) [#58](https://github.com/logstash-plugins/logstash-filter-ruby/issues/58)
+
+## 3.1.6
+  - Add error log backtrace to inline scripts [#54](https://github.com/logstash-plugins/logstash-filter-ruby/pull/54)
+
 ## 3.1.5
   - Fixed path based scripting not calling filter\_matched [#45](https://github.com/logstash-plugins/logstash-filter-ruby/issues/45)
 
@@ -44,4 +50,3 @@
  - internal: Plugins were updated to follow the new shutdown semantic, this mainly allows Logstash to instruct input plugins to terminate gracefully,
    instead of using Thread.raise on the plugins' threads. Ref: https://github.com/elastic/logstash/pull/3895
  - internal,deps: Dependency on logstash-core update to 2.0
-
