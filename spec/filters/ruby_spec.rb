@@ -116,19 +116,33 @@ describe LogStash::Filters::Ruby do
     end
 
     describe "code raising" do
-      subject(:filter) { ::LogStash::Filters::Ruby.new('code' => 'raise "an_error"') }
+
+      let(:event) { LogStash::Event.new "message" => "hello world" }
+      let(:code) { 'raise "an_error"' }
+
+      subject(:filter) { ::LogStash::Filters::Ruby.new('code' => code) }
       before(:each) { filter.register }
 
       it "should handle (standard) error" do
         expect( filter.logger ).to receive(:error).
-            with('Ruby exception occurred: an_error', hash_including(:exception => RuntimeError)).
+            with('Exception occurred: an_error', hash_including(:exception => RuntimeError)).
             and_call_original
 
-        event = LogStash::Event.new "message" => "hello world"
         new_events = filter.multi_filter([event])
         expect(new_events.length).to eq 1
         expect(new_events[0]).to equal(event)
         expect( event.get('tags') ).to eql [ '_rubyexception' ]
+      end
+
+      context 'fatal error' do
+
+        let(:code) { 'raise java.lang.AssertionError.new("TEST")' }
+
+        it "should not rescue Java errors" do
+          expect( filter.logger ).to_not receive(:error)
+
+          expect { filter.multi_filter([event]) }.to raise_error(java.lang.AssertionError)
+        end
       end
     end
 

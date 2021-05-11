@@ -92,8 +92,8 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
   def inline_script(event, &block)
     filter_method(event, &block)
     filter_matched(event)
-  rescue Exception => e
-    @logger.error("Ruby exception occurred: #{e.message}", :exception => e.class, :backtrace => e.backtrace)
+  rescue StandardError, ScriptError, java.lang.Exception => e
+    @logger.error("Exception occurred: #{e.message}", :exception => e.class, :backtrace => e.backtrace)
     tag_exception(event, e)
   end
 
@@ -103,9 +103,9 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
       filter_matched(event)
 
       self.class.check_result_events!(results)
-    rescue => e
+    rescue StandardError, ScriptError, java.lang.Exception => e
       @logger.error("Could not process event:", :message => e.message, :exception => e.class, :backtrace => e.backtrace,
-                    :script_path => @path,)
+                    :script_path => @path)
       tag_exception(event, e)
       return event
     end
