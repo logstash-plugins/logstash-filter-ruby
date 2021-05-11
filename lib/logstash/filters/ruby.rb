@@ -60,7 +60,7 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
   def register
     if @code && @path.nil?
       eval(@init, binding, "(ruby filter init)") if @init
-      eval("define_singleton_method :filter_method do |event, &new_event_block|\n #{@code} \nend", binding, "(ruby filter code)")
+      eval("def self.filter_method(event, &new_event_block); #{@code} \nend", binding, "(ruby filter code)", 0)
     elsif @path && @code.nil?
       @script.register
     else
@@ -92,14 +92,9 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
   def inline_script(event, &block)
     filter_method(event, &block)
     filter_matched(event)
-  rescue Exception => e
-    @logger.error("Ruby exception occurred: #{e.message}",
-                  :class     => e.class.name,
-                  :backtrace => e.backtrace)
-    if @tag_with_exception_message
-      event.tag("#{@tag_on_exception}: #{e}")
-    end
-    event.tag(@tag_on_exception)
+  rescue StandardError, ScriptError, java.lang.Exception => e
+    @logger.error("Exception occurred: #{e.message}", :exception => e.class, :backtrace => e.backtrace)
+    tag_exception(event, e)
   end
 
   def file_script(event)
@@ -108,22 +103,17 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
       filter_matched(event)
 
       self.class.check_result_events!(results)
-    rescue => e
-      if @tag_with_exception_message
-        event.tag("#{@tag_on_exception}: #{e}")
-      end
-      event.tag(@tag_on_exception)
-      message = "Could not process event: " + e.message
-      @logger.error(message, :script_path => @path,
-                             :class => e.class.name,
-                             :backtrace => e.backtrace)
+    rescue StandardError, ScriptError, java.lang.Exception => e
+      @logger.error("Could not process event:", :message => e.message, :exception => e.class, :backtrace => e.backtrace,
+                    :script_path => @path)
+      tag_exception(event, e)
       return event
     end
 
     returned_original = false
     results.each do |r_event|
       # If the user has generated a new event we yield that for them here
-      if event == r_event
+      if event.equal? r_event
         returned_original = true
       else
         yield r_event
@@ -133,5 +123,14 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
     end
 
     event.cancel unless returned_original
+  end
+
+  private
+
+  def tag_exception(event, e)
+    if @tag_with_exception_message
+      event.tag("#{@tag_on_exception}: #{e}")
+    end
+    event.tag(@tag_on_exception)
   end
 end

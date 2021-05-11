@@ -27,9 +27,9 @@ describe LogStash::Filters::Ruby do
       sample("message" => "hello world", "mydate" => "2014-09-23T00:00:00-0800") do
         # json is rendered in pretty json since the JSON.pretty_generate created json from the event hash
         # pretty json contains \n
-        insist { subject.get("pretty").count("\n") } == 5
+        expect( subject.get("pretty").count("\n") ).to eql 5
         # usage of JSON.parse here is to avoid parser-specific order assertions
-        insist { JSON.parse(subject.get("pretty")) } == JSON.parse("{\n  \"message\": \"hello world\",\n  \"mydate\": \"2014-09-23T00:00:00-0800\",\n  \"@version\": \"1\",\n  \"@timestamp\": \"2014-09-23T08:00:00.000Z\"\n}")
+        expect( JSON.parse(subject.get("pretty")) ).to eql JSON.parse("{\n  \"message\": \"hello world\",\n  \"mydate\": \"2014-09-23T00:00:00-0800\",\n  \"@version\": \"1\",\n  \"@timestamp\": \"2014-09-23T08:00:00.000Z\"\n}")
       end
     end
 
@@ -54,9 +54,9 @@ describe LogStash::Filters::Ruby do
       sample("message" => "hello world", "mydate" => "2014-09-23T00:00:00-0800") do
         # if this eventually breaks because we removed the custom to_json and/or added pretty support to JrJackson then all is good :)
         # non-pretty json does not contain \n
-        insist { subject.get("pretty").count("\n") } == 0
+        expect( subject.get("pretty").count("\n") ).to eql 0
         # usage of JSON.parse here is to avoid parser-specific order assertions
-        insist { JSON.parse(subject.get("pretty")) } == JSON.parse("{\"message\":\"hello world\",\"mydate\":\"2014-09-23T00:00:00-0800\",\"@version\":\"1\",\"@timestamp\":\"2014-09-23T08:00:00.000Z\"}")
+        expect( JSON.parse(subject.get("pretty")) ).to eql JSON.parse("{\"message\":\"hello world\",\"mydate\":\"2014-09-23T00:00:00-0800\",\"@version\":\"1\",\"@timestamp\":\"2014-09-23T08:00:00.000Z\"}")
       end
     end
 
@@ -79,8 +79,8 @@ describe LogStash::Filters::Ruby do
       CONFIG
 
       sample("message" => "hello world", "mydate" => "2014-09-23T00:00:00-0800") do
-        insist { subject.get("mydate") } == "2014-09-23T00:00:00-0800"
-        insist { subject.get("tags") } == ["_rubyexception"]
+        expect( subject.get("mydate") ).to eql "2014-09-23T00:00:00-0800"
+        expect( subject.get("tags") ).to eql ["_rubyexception"]
       end
     end
 
@@ -112,6 +112,57 @@ describe LogStash::Filters::Ruby do
       sample("message" => "hello world", "mydate" => "2014-09-23T00:00:00-0800") do
         expect(subject.get("message")).to eq("hello world");
         expect(subject.get("mydate")).to eq("2014-09-23T00:00:00-0800");
+      end
+    end
+
+    describe "code raising" do
+
+      let(:event) { LogStash::Event.new "message" => "hello world" }
+      let(:code) { 'raise "an_error"' }
+
+      subject(:filter) { ::LogStash::Filters::Ruby.new('code' => code) }
+      before(:each) { filter.register }
+
+      it "should handle (standard) error" do
+        expect( filter.logger ).to receive(:error).
+            with('Exception occurred: an_error', hash_including(:exception => RuntimeError)).
+            and_call_original
+
+        new_events = filter.multi_filter([event])
+        expect(new_events.length).to eq 1
+        expect(new_events[0]).to equal(event)
+        expect( event.get('tags') ).to eql [ '_rubyexception' ]
+      end
+
+      context 'fatal error' do
+
+        let(:code) { 'raise java.lang.AssertionError.new("TEST")' }
+
+        it "should not rescue Java errors" do
+          expect( filter.logger ).to_not receive(:error)
+
+          expect { filter.multi_filter([event]) }.to raise_error(java.lang.AssertionError)
+        end
+      end
+    end
+
+    describe "invalid script" do
+      let(:filter_params) { { 'code' => code } }
+      subject(:filter) { ::LogStash::Filters::Ruby.new(filter_params) }
+
+      let(:code) { 'sample do syntax error' }
+
+      it "should error out during register" do
+        expect { filter.register }.to raise_error(SyntaxError)
+      end
+
+      it "reports correct error line" do
+        begin
+          filter.register
+          fail('syntax error expected')
+        rescue SyntaxError => e
+          expect( e.message ).to match /\(ruby filter code\):1.*? unexpected end-of-file/
+        end
       end
     end
   end
@@ -165,6 +216,40 @@ describe LogStash::Filters::Ruby do
 
       it "should produce more multiple events" do
         expect {|b| filter.filter(incoming_event, &b) }.to yield_control.exactly(3).times
+      end
+    end
+
+    describe "script that raises" do
+      let(:script_filename) { 'raising.rb' }
+
+      before(:each) do
+        filter.register
+        incoming_event.set('error', 'ERR-MSG')
+      end
+
+      it "should handle (standard) error" do
+        expect( filter.logger ).to receive(:error).
+            with('Could not process event:', hash_including(:message => 'ERR-MSG', :exception => NameError)).
+            and_call_original
+        filter.filter(incoming_event)
+        expect( incoming_event.get('tags') ).to eql [ '_rubyexception' ]
+      end
+    end
+
+    describe "invalid .rb script" do
+      let(:script_filename) { 'invalid.rb' }
+
+      it "should error out during register" do
+        expect { filter.register }.to raise_error(SyntaxError)
+      end
+
+      it "should report correct line number" do
+        begin
+          filter.register
+          fail('syntax error expected')
+        rescue SyntaxError => e
+          expect( e.message ).to match /invalid\.rb\:7/
+        end
       end
     end
   end
