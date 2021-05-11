@@ -1,4 +1,4 @@
-## 3.2.0
+## 4.0.0
   - Breaking: restrict unintended user constant usage [#56](https://github.com/logstash-plugins/logstash-filter-ruby/pull/56)
 
 ## 3.1.7
