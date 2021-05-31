@@ -229,7 +229,7 @@ causes an exception.
 * Value type is <<boolean,boolean>>
 * Default value is `false`
 
-If `true` adds a tag to the event that's the concatenation of <<plugins-{type}s-{plugin}-common-tag_with_exception_message>>
+If `true` adds a tag to the event that's the concatenation of <<plugins-{type}s-{plugin}-tag_with_exception_message>>
 and the exception message.
 
 
