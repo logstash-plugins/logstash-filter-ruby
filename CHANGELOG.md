@@ -1,5 +1,5 @@
 ## x.y.z
- - [DOC] Added doc to describe the option `tag_with_exception_message`[]()
+ - [DOC] Added doc to describe the option `tag_with_exception_message`[#62](https://github.com/logstash-plugins/logstash-filter-ruby/pull/62)
 
 ## 3.1.7
   - [DOC] Added docs to help people avoid concurrency issues (often caused by accidentally relying on shared state with global variables, constants, or unguarded overwriting of instance variables) [#58](https://github.com/logstash-plugins/logstash-filter-ruby/issues/58)
