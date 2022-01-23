@@ -66,6 +66,11 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
     else
       @logger.fatal("You must either use an inline script with the \"code\" option or a script file using \"path\".")
     end
+  rescue SyntaxError => e
+    @logger.error("Syntax Error in register #{e.message}",
+                  :class     => e.class.name,
+                  :backtrace => e.backtrace)
+    fail("Ruby script syntax error")
   end
 
   def self.check_result_events!(results)
