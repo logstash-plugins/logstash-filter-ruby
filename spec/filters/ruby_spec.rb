@@ -29,7 +29,7 @@ describe LogStash::Filters::Ruby do
         # pretty json contains \n
         insist { subject.get("pretty").count("\n") } == 5
         # usage of JSON.parse here is to avoid parser-specific order assertions
-        insist { JSON.parse(subject.get("pretty")) } == JSON.parse("{\n  \"message\": \"hello world\",\n  \"mydate\": \"2014-09-23T00:00:00-0800\",\n  \"@version\": \"1\",\n  \"@timestamp\": \"2014-09-23T08:00:00.000Z\"\n}")
+        insist { JSON.parse(subject.get("pretty")) } == JSON.parse("{\n  \"message\": \"hello world\",\n  \"mydate\": \"2014-09-23T00:00:00-0800\",\n  \"@version\": \"1\",\n  \"@timestamp\": \"#{get_logstash_timestamp("2014-09-23T08:00:00.000Z")}\"\n}")
       end
     end
 
@@ -56,7 +56,7 @@ describe LogStash::Filters::Ruby do
         # non-pretty json does not contain \n
         insist { subject.get("pretty").count("\n") } == 0
         # usage of JSON.parse here is to avoid parser-specific order assertions
-        insist { JSON.parse(subject.get("pretty")) } == JSON.parse("{\"message\":\"hello world\",\"mydate\":\"2014-09-23T00:00:00-0800\",\"@version\":\"1\",\"@timestamp\":\"2014-09-23T08:00:00.000Z\"}")
+        insist { JSON.parse(subject.get("pretty")) } == JSON.parse("{\"message\":\"hello world\",\"mydate\":\"2014-09-23T00:00:00-0800\",\"@version\":\"1\",\"@timestamp\":\"#{get_logstash_timestamp("2014-09-23T08:00:00.000Z")}\"}")
       end
     end
 
