@@ -1,6 +1,6 @@
 ## 3.1.8
  - [DOC] Added doc to describe the option `tag_with_exception_message`[#62](https://github.com/logstash-plugins/logstash-filter-ruby/pull/62)
- - Fix SyntaxError handling so other pipelines can shut down gracefully
+ - Fix SyntaxError handling so other pipelines can shut down gracefully [#64](https://github.com/logstash-plugins/logstash-filter-ruby/pull/64)
 
 ## 3.1.7
   - [DOC] Added docs to help people avoid concurrency issues (often caused by accidentally relying on shared state with global variables, constants, or unguarded overwriting of instance variables) [#58](https://github.com/logstash-plugins/logstash-filter-ruby/issues/58)
