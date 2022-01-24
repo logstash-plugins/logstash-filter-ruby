@@ -66,7 +66,7 @@ class LogStash::Filters::Ruby < LogStash::Filters::Base
     else
       @logger.fatal("You must either use an inline script with the \"code\" option or a script file using \"path\".")
     end
-  rescue ScriptError, SyntaxError => e
+  rescue ::ScriptError => e # SyntaxError, LoadError etc.
     @logger.error("error in register", message: e.message, exception: e.class, backtrace: e.backtrace)
     fail("unexpected error: #{e}")
   end
