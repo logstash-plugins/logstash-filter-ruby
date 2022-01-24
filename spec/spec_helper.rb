@@ -4,8 +4,7 @@ require "insist"
 
 module TestHelper
   def get_logstash_timestamp(expected)
-    expected = LogStash::Timestamp.new(expected)
-    expected.to_s
+    LogStash::Timestamp.new(expected).to_s
   end
 end
 
