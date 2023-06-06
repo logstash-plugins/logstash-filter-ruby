@@ -24,7 +24,7 @@ describe LogStash::Filters::Ruby do
         }
       CONFIG
 
-      sample("message" => "hello world", "mydate" => "2014-09-23T00:00:00-0800") do
+      sample({"message" => "hello world", "mydate" => "2014-09-23T00:00:00-0800"}) do
         # json is rendered in pretty json since the JSON.pretty_generate created json from the event hash
         # pretty json contains \n
         insist { subject.get("pretty").count("\n") } == 5
@@ -51,7 +51,7 @@ describe LogStash::Filters::Ruby do
         }
       CONFIG
 
-      sample("message" => "hello world", "mydate" => "2014-09-23T00:00:00-0800") do
+      sample({"message" => "hello world", "mydate" => "2014-09-23T00:00:00-0800"}) do
         # if this eventually breaks because we removed the custom to_json and/or added pretty support to JrJackson then all is good :)
         # non-pretty json does not contain \n
         insist { subject.get("pretty").count("\n") } == 0
@@ -78,7 +78,7 @@ describe LogStash::Filters::Ruby do
         }
       CONFIG
 
-      sample("message" => "hello world", "mydate" => "2014-09-23T00:00:00-0800") do
+      sample({"message" => "hello world", "mydate" => "2014-09-23T00:00:00-0800"}) do
         insist { subject.get("mydate") } == "2014-09-23T00:00:00-0800"
         insist { subject.get("tags") } == ["_rubyexception"]
       end
@@ -109,7 +109,7 @@ describe LogStash::Filters::Ruby do
         }
       CONFIG
 
-      sample("message" => "hello world", "mydate" => "2014-09-23T00:00:00-0800") do
+      sample({"message" => "hello world", "mydate" => "2014-09-23T00:00:00-0800"}) do
         expect(subject.get("message")).to eq("hello world");
         expect(subject.get("mydate")).to eq("2014-09-23T00:00:00-0800");
       end
