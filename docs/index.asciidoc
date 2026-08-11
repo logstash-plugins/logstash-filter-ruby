@@ -229,7 +229,7 @@ causes an exception.
 * Value type is <<boolean,boolean>>
 * Default value is `false`
 
-If `true` adds a tag to the event that is the concatenation of `tag_with_exception_message`
+If `true` adds a tag to the event that is the concatenation of `tag_on_exception`
 and the exception message.
 
 
